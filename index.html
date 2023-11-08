@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: black;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="myCanvas"></canvas>
+    <script>
+        var canvas = document.getElementById('myCanvas');
+        var ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Define the Sun
+        var sun = {
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            size: 60,
+            color: 'yellow'
+        };
+
+        // Define the planets (including Neptune)
+        var planets = [
+            { name: 'Mercury', distance: 150, size: 5, color: 'gray', angle: 0, angularSpeed: 0.02 },
+            { name: 'Venus', distance: 200, size: 8, color: 'orange', angle: 0, angularSpeed: 0.015 },
+            { name: 'Earth', distance: 260, size: 8, color: 'dodgerblue', angle: 0, angularSpeed: 0.01 },
+            { name: 'Mars', distance: 320, size: 7, color: 'red', angle: 0, angularSpeed: 0.008 },
+            { name: 'Jupiter', distance: 400, size: 20, color: 'tan', angle: 0, angularSpeed: 0.005 },
+            { name: 'Saturn', distance: 480, size: 18, color: 'gold', angle: 0, angularSpeed: 0.003 },
+            { name: 'Uranus', distance: 540, size: 12, color: 'lightseagreen', angle: 0, angularSpeed: 0.002 },
+            { name: 'Neptune', distance: 600, size: 12, color: 'rgb(67, 96, 238)', angle: 0, angularSpeed: 0.001 }
+        ];
+
+        // Array of star objects
+        var stars = [];
+
+        // Generate stars of different sizes
+        for (var i = 0; i < 100; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 3,
+                brightness: Math.random()
+            });
+        }
+
+        // Function to draw the scene
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw the Sun
+            ctx.beginPath();
+            ctx.arc(sun.x, sun.y, sun.size, 0, 2 * Math.PI);
+            ctx.fillStyle = sun.color;
+            ctx.fill();
+
+            // Draw the stars
+            for (var i = 0; i < stars.length; i++) {
+                ctx.beginPath();
+                ctx.arc(stars[i].x, stars[i].y, stars[i].size, 0, 2 * Math.PI);
+                ctx.fillStyle = 'rgba(255, 255, 255, ' + stars[i].brightness + ')';
+                ctx.fill();
+
+                // Update star brightness for fading in and out effect
+                stars[i].brightness += 0.005;
+                if (stars[i].brightness > 1) {
+                    stars[i].brightness = 0;
+                }
+            }
+
+            // Draw the planets and tag Neptune with its name
+            for (var i = 0; i < planets.length; i++) {
+                var planet = planets[i];
+
+                // Calculate the planet's new position
+                planet.angle += planet.angularSpeed;
+                var planetX = sun.x + planet.distance * Math.cos(planet.angle);
+                var planetY = sun.y + planet.distance * Math.sin(planet.angle);
+
+                // Ensure planets stay within the visible window
+                if (
+                    planetX + planet.size > 0 &&
+                    planetX - planet.size < canvas.width &&
+                    planetY + planet.size > 0 &&
+                    planetY - planet.size < canvas.height
+                ) {
+                    // Draw the planet
+                    ctx.beginPath();
+                    ctx.arc(planetX, planetY, planet.size, 0, 2 * Math.PI);
+                    ctx.fillStyle = planet.color;
+                    ctx.fill();
+
+                    // Tag Neptune with its name
+                    if (planet.name === 'Neptune') {
+                        ctx.font = '16px Arial';
+                        ctx.fillStyle = 'white';
+                        ctx.fillText(planet.name, planetX - 30, planetY + 30);
+                    }
+                }
+            }
+
+            // Request the next frame
+            requestAnimationFrame(draw);
+        }
+
+        // Start the animation
+        draw();
+    </script>
+</body>
+</html>
